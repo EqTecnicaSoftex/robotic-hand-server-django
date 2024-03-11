@@ -41,3 +41,7 @@ def finalize_denso(request):
         return JsonResponse({'message': 'Movendo o denso para a posição: ' + final_position})
     else:
         return JsonResponse({'message': 'Método de solicitação inválido'}, status=400)
+
+
+def server_status(request):
+    return JsonResponse({'message': 'Servidor em execução'})
