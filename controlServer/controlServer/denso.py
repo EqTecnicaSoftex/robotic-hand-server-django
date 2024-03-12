@@ -1,12 +1,45 @@
+import rria_api_denso
+
+
 class Denso:
-    def __init__(self):
-        self.ip = ''
-        self.port = 0
-        self.receive_positions = ''
-        self.positions = ''
+    def __init__(self, ip):
+        self.ip = ip
+        self.robot_denso = rria_api_denso.DensoRobotAPI('', '', f'Server={self.ip}')
+        self.robot_denso.connect()  # conecta ao robô
+        self.receive_positions = ''  # inicializa a variável que receberá as posições
+        self.positions = rria_api_denso.RobotJointCommand(1000, 0, 0, 0, 0, 0)  # inicializa a variável que armazenará
+        # as posições recebidas
+        self.error = ''  # inicializa a variável que armazenará os erros
+        self.condition_error = False  # inicializa a variável que armazenará a condição de erro
 
     def receive_positions_server(self):
-        self.positions = self.receive_positions
+        self.positions = rria_api_denso.RobotJointCommand(self.receive_positions[0], self.receive_positions[1],
+                                                          self.receive_positions[2], self.receive_positions[3],
+                                                          self.receive_positions[4], self.receive_positions[5])
+        # Carrega as posições recebidas para a classe que armazenará as posições
+        self.receive_positions = ''  # Limpa a variável que armazena as posições recebidas
 
-    def clear_receive_positions(self):
-        self.receive_positions = ''
+    def move_joints(self):
+        if self.robot_denso.is_connected():  # verifica se o robô está conectado
+            if self.positions.joint_1 != 1000:  # verifica se as posições foram recebidas
+                self.robot_denso.motor_on()  # liga os motores
+                if self.robot_denso.motor_enabled():  # verifica se os motores estão ligados
+                    self.robot_denso.set_arm_speed(30, 30, 30)  # seta velocidade, aceleração, desaceleração
+                    self.robot_denso.move_joints(self.positions)  # move o robô para as posições recebidas
+                    self.condition_error = False  # seta a condição de erro como falsa
+                else:
+                    self.error = "Motor off"
+                    self.condition_error = True  # seta a condição de erro como verdadeira
+                    return self.error  # caso os motores estejam desligados
+            else:
+                self.error = "No positions received"
+                self.condition_error = True  # seta a condição de erro como verdadeira
+                return self.error  # caso as posições não tenham sido recebidas
+        else:
+            self.error = "Not connected"
+            self.condition_error = True  # seta a condição de erro como verdadeira
+            return self.error  # caso o robô não esteja conectado
+
+    def motor_off(self):
+        self.robot_denso.motor_off()  # desliga os motores
+
