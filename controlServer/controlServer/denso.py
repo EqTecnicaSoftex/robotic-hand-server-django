@@ -6,16 +6,17 @@ class Denso:
         self.ip = ip
         self.robot_denso = rria_api_denso.DensoRobotAPI('', '', f'Server={self.ip}')
         self.robot_denso.connect()  # conecta ao robô
-        self.receive_positions = ''  # inicializa a variável que receberá as posições
-        self.positions = rria_api_denso.RobotJointCommand(1000, 0, 0, 0, 0, 0)  # inicializa a variável que armazenará
+        self.receive_positions = []  # inicializa a variável que receberá as posições
+        self.positions = None  # inicializa a variável que armazenará
         # as posições recebidas
         self.error = ''  # inicializa a variável que armazenará os erros
         self.condition_error = False  # inicializa a variável que armazenará a condição de erro
 
     def receive_positions_server(self):
-        self.positions = rria_api_denso.RobotJointCommand(self.receive_positions[0], self.receive_positions[1],
-                                                          self.receive_positions[2], self.receive_positions[3],
-                                                          self.receive_positions[4], self.receive_positions[5])
+        self.positions = rria_api_denso.RobotCartesianCommand(self.receive_positions[0], self.receive_positions[1],
+                                                              self.receive_positions[2], self.receive_positions[3],
+                                                              self.receive_positions[4], self.receive_positions[5],
+                                                              self.receive_positions[6])
         # Carrega as posições recebidas para a classe que armazenará as posições
         self.receive_positions = ''  # Limpa a variável que armazena as posições recebidas
 
@@ -24,8 +25,8 @@ class Denso:
             if self.positions.joint_1 != 1000:  # verifica se as posições foram recebidas
                 self.robot_denso.motor_on()  # liga os motores
                 if self.robot_denso.motor_enabled():  # verifica se os motores estão ligados
-                    self.robot_denso.set_arm_speed(30, 30, 30)  # seta velocidade, aceleração, desaceleração
-                    self.robot_denso.move_joints(self.positions)  # move o robô para as posições recebidas
+                    self.robot_denso.set_arm_speed(10, 10, 10)  # seta velocidade, aceleração, desaceleração
+                    self.robot_denso.move_cartesian(self.positions)  # move o robô para as posições recebidas
                     self.condition_error = False  # seta a condição de erro como falsa
                 else:
                     self.error = "Motor off"
@@ -43,3 +44,9 @@ class Denso:
     def motor_off(self):
         self.robot_denso.motor_off()  # desliga os motores
 
+
+if __name__ == '__main__':
+    denso = Denso('')
+    denso.receive_positions = [133.2251, -130.802, 881.3608, 28.81023, 0.7947775, 41.15335, 13]
+    denso.receive_positions_server()
+    denso.move_joints()
