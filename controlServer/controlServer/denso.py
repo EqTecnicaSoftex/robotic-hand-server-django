@@ -46,7 +46,11 @@ class Denso:
 
 
 if __name__ == '__main__':
+    from lists import *
     denso = Denso('')
-    denso.receive_positions = [133.2251, -130.802, 881.3608, 28.81023, 0.7947775, 41.15335, 13]
-    denso.receive_positions_server()
-    denso.move_joints()
+    for i in range(24):
+        denso.receive_positions = globals()['p' + str(i)]
+        print(i)
+
+    # denso.receive_positions_server()
+    # denso.move_joints()
