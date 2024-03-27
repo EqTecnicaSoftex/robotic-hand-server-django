@@ -22,20 +22,20 @@ class Denso:
 
     def move_joints(self):
         if self.robot_denso.is_connected():  # verifica se o robô está conectado
-            if self.positions.joint_1 != 1000:  # verifica se as posições foram recebidas
-                self.robot_denso.motor_on()  # liga os motores
-                if self.robot_denso.motor_enabled():  # verifica se os motores estão ligados
-                    self.robot_denso.set_arm_speed(10, 10, 10)  # seta velocidade, aceleração, desaceleração
-                    self.robot_denso.move_cartesian(self.positions)  # move o robô para as posições recebidas
-                    self.condition_error = False  # seta a condição de erro como falsa
-                else:
-                    self.error = "Motor off"
-                    self.condition_error = True  # seta a condição de erro como verdadeira
-                    return self.error  # caso os motores estejam desligados
+            # if self.positions.joint_1 != 1000:  # verifica se as posições foram recebidas
+            self.robot_denso.motor_on()  # liga os motores
+            if self.robot_denso.motor_enabled():  # verifica se os motores estão ligados
+                self.robot_denso.set_arm_speed(10, 10, 10)  # seta velocidade, aceleração, desaceleração
+                self.robot_denso.move_cartesian(self.positions)  # move o robô para as posições recebidas
+                self.condition_error = False  # seta a condição de erro como falsa
             else:
-                self.error = "No positions received"
+                self.error = "Motor off"
                 self.condition_error = True  # seta a condição de erro como verdadeira
-                return self.error  # caso as posições não tenham sido recebidas
+                return self.error  # caso os motores estejam desligados
+            # else:
+            #     self.error = "No positions received"
+            #     self.condition_error = True  # seta a condição de erro como verdadeira
+            #     return self.error  # caso as posições não tenham sido recebidas
         else:
             self.error = "Not connected"
             self.condition_error = True  # seta a condição de erro como verdadeira
@@ -47,10 +47,8 @@ class Denso:
 
 if __name__ == '__main__':
     from lists import *
-    denso = Denso('')
-    for i in range(24):
+    denso = Denso('192.168.160.226')
+    for i in range(27):
         denso.receive_positions = globals()['p' + str(i)]
-        print(i)
-
-    # denso.receive_positions_server()
-    # denso.move_joints()
+        denso.receive_positions_server()
+        denso.move_joints()
