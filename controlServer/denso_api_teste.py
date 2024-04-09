@@ -9,7 +9,7 @@ if ria.is_connected():
     ria.motor_on()
 
     if ria.motor_enabled():
-        ria.set_arm_speed(30, 30, 30)  # speed, accel, decel
+        ria.set_arm_speed(10, 10, 10)  # speed, accel, decel
         ria.move_joints(rria_api_denso.RobotJointCommand(0, 0, 0, 0, 0, 0))
         ria.motor_off()
     else:
