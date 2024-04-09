@@ -11,6 +11,7 @@ class Denso:
         # as posições recebidas
         self.error = ''  # inicializa a variável que armazenará os erros
         self.condition_error = False  # inicializa a variável que armazenará a condição de erro
+        self.objeto = 0
 
     def receive_positions_server(self):
         self.positions = rria_api_denso.RobotCartesianCommand(self.receive_positions[0], self.receive_positions[1],
@@ -48,14 +49,24 @@ class Denso:
 if __name__ == '__main__':
     from lists import *
     from time import sleep
+    from control_hand.servo_control import HandAngles
+    hand = HandAngles()
     denso = Denso('192.168.160.226')
+    hand.angles = [180, 180, 180, 180, 180, 90]
+    hand.send_hand_angles(hand.angles)
+    denso.motor_off()
     for i in range(28):
-        denso.receive_positions = globals()['p' + str(i)]
-        print(i)
-        if globals()['p' + str(i)] == 'pause':
-            op = input('Pegou')
-            if op == 's':
-                pass
+        if globals()['p' + str(i)] == 'soltar':
+            hand.angles = [180, 180, 180, 180, 180, 90]
+            hand.send_hand_angles(hand.angles)
+            print('soltou')
+            sleep(2)
+        elif globals()['p' + str(i)] == 'pegar':
+            hand.angles = [0, 0, 0, 0, 180, 90]
+            hand.send_hand_angles(hand.angles)
+            print('pegou')
+            sleep(2)
         else:
+            denso.receive_positions = globals()['p' + str(i)]
             denso.receive_positions_server()
             denso.move_joints()
